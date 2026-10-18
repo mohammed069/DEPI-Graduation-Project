@@ -7,7 +7,9 @@ public static class TakeQuiz
 {
     public static async Task RunAsync(AppDbContext db)
     {
+        Console.ForegroundColor = ConsoleColor.Blue;
         Console.Clear(); Console.WriteLine("===== Take a Quiz =====");
+        Console.ResetColor();
         Console.Write("Enter Student ID: ");
         int studentId = Convert.ToInt32(Console.ReadLine());
 
@@ -69,6 +71,7 @@ public static class TakeQuiz
         attempt.Score = 0;
 
         db.QuizAttempts.Add(attempt);
+        await db.SaveChangesAsync();
 
         decimal score = 0;
 
@@ -124,10 +127,39 @@ public static class TakeQuiz
             answerId++;
         }
 
+
+
         attempt.Score = score;
+
+        // Save answers before checking them
+        await db.SaveChangesAsync();
+
+        bool allAnswered =
+            await AttemptServices.AreAllQuestionsAnsweredAsync(
+                db, attemptId);
+
+
+
+        if (!allAnswered)
+        {
+            Console.WriteLine("You must answer all questions before submitting.");
+            return;
+        }
+
+        bool canSubmit =
+            await AttemptServices.CanSubmitAsync(
+                db, attemptId);
+
+        if (!canSubmit)
+        {
+            Console.WriteLine("Cannot submit the quiz.");
+            return;
+        }
+
         attempt.SubmittedAt = DateTime.Now;
 
         await db.SaveChangesAsync();
+
 
         Console.WriteLine();
         Console.WriteLine("===== Quiz Finished =====");

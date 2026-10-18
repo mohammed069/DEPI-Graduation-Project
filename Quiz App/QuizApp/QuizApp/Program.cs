@@ -7,7 +7,7 @@ using QuizApp.Data;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
     .UseSqlServer(
-        "Server=MOHAMMED\\SQLEXPRESS;Database=QuizAppDB;Trusted_Connection=True;TrustServerCertificate=True;")
+        "Server=Localhost\\SQL2025;Database=QuizAppDB;Trusted_Connection=True;TrustServerCertificate=True;")
     .Options;
 
 await using var db = new AppDbContext(options);
