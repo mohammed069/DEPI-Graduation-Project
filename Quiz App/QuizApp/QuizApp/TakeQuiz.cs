@@ -7,24 +7,12 @@ public static class TakeQuiz
 {
     public static async Task RunAsync(AppDbContext db)
     {
-        Console.Clear();
-        Console.WriteLine("===== Take a Quiz =====");
-        Console.WriteLine();
-
-        
+        Console.Clear(); Console.WriteLine("===== Take a Quiz =====");
         Console.Write("Enter Student ID: ");
-
-        if (!int.TryParse(Console.ReadLine(), out int studentId))
-        {
-            Console.WriteLine("Invalid Student ID.");
-            return;
-        }
+        int studentId = Convert.ToInt32(Console.ReadLine());
 
         var student = await db.Users
-            .AsNoTracking()
-            .FirstOrDefaultAsync(u =>
-                u.UserId == studentId &&
-                u.Role == "Student");
+            .FirstOrDefaultAsync(x => x.UserId == studentId);
 
         if (student == null)
         {
@@ -32,18 +20,12 @@ public static class TakeQuiz
             return;
         }
 
-      
         Console.Write("Enter Quiz ID: ");
-
-        if (!int.TryParse(Console.ReadLine(), out int quizId))
-        {
-            Console.WriteLine("Invalid Quiz ID.");
-            return;
-        }
+        int quizId = Convert.ToInt32(Console.ReadLine());
 
         var quiz = await db.Quizzes
-            .Include(q => q.Questions)
-            .FirstOrDefaultAsync(q => q.QuizId == quizId);
+            .Include(x => x.Questions)
+            .FirstOrDefaultAsync(x => x.QuizId == quizId);
 
         if (quiz == null)
         {
@@ -51,86 +33,53 @@ public static class TakeQuiz
             return;
         }
 
-         
-        bool alreadyTaken = await db.QuizAttempts
-            .AnyAsync(a =>
-                a.UserId == studentId &&
-                a.QuizId == quizId);
+        var oldAttempt = await db.QuizAttempts
+            .FirstOrDefaultAsync(x =>
+                x.UserId == studentId &&
+                x.QuizId == quizId);
 
-        if (alreadyTaken)
+        if (oldAttempt != null)
         {
-            Console.WriteLine();
-            Console.WriteLine("You have already taken this quiz.");
+            Console.WriteLine("You already took this quiz.");
             return;
         }
 
-        if (quiz.Questions.Count == 0)
+        int attemptId = 1;
+
+        if (await db.QuizAttempts.AnyAsync())
         {
-            Console.WriteLine();
-            Console.WriteLine("This quiz has no questions.");
-            return;
+            attemptId =
+                await db.QuizAttempts.MaxAsync(x => x.AttemptId) + 1;
         }
 
-        Console.WriteLine();
-        Console.WriteLine($"Quiz: {quiz.Title}");
-        Console.WriteLine($"Total Marks: {quiz.TotalMarks}");
-        Console.WriteLine($"Duration: {quiz.Duration} minutes");
-        Console.WriteLine();
+        int answerId = 1;
 
-        Console.WriteLine("Press any key to start...");
-        Console.ReadKey();
-
-        DateTime startedAt = DateTime.Now;
-
-         
-
-        int attemptId = await db.QuizAttempts.AnyAsync()
-            ? await db.QuizAttempts.MaxAsync(a => a.AttemptId) + 1
-            : 1;
-
-        var attempt = new QuizAttempt
+        if (await db.StudentAnswers.AnyAsync())
         {
-            AttemptId = attemptId,
-            UserId = studentId,
-            QuizId = quizId,
-            StartedAt = startedAt,
-            Score = 0
-        };
+            answerId =
+                await db.StudentAnswers.MaxAsync(x => x.AnswerId) + 1;
+        }
+
+        var attempt = new QuizAttempt();
+
+        attempt.AttemptId = attemptId;
+        attempt.UserId = studentId;
+        attempt.QuizId = quizId;
+        attempt.StartedAt = DateTime.Now;
+        attempt.Score = 0;
+
+        db.QuizAttempts.Add(attempt);
 
         decimal score = 0;
 
-        int nextAnswerId = await db.StudentAnswers.AnyAsync()
-            ? await db.StudentAnswers.MaxAsync(a => a.AnswerId) + 1
-            : 1;
-
-        int questionNumber = 1;
-
-        foreach (var question in quiz.Questions.OrderBy(q => q.QuestionId))
+        foreach (var question in quiz.Questions)
         {
-            Console.Clear();
-
-            Console.WriteLine($"Quiz: {quiz.Title}");
-            Console.WriteLine(
-                $"Question {questionNumber} of {quiz.Questions.Count}");
-
             Console.WriteLine();
-
             Console.WriteLine(question.QuestionText);
-            Console.WriteLine($"Marks: {question.Marks}");
-            Console.WriteLine();
 
             var options = await db.Options
-                .AsNoTracking()
-                .Where(o => o.QuestionId == question.QuestionId)
-                .OrderBy(o => o.OptionId)
+                .Where(x => x.QuestionId == question.QuestionId)
                 .ToListAsync();
-
-            if (options.Count == 0)
-            {
-                Console.WriteLine("No options found for this question.");
-                questionNumber++;
-                continue;
-            }
 
             for (int i = 0; i < options.Count; i++)
             {
@@ -138,82 +87,53 @@ public static class TakeQuiz
                     $"{i + 1}. {options[i].OptionText}");
             }
 
-            Console.WriteLine();
+            Console.Write("Your answer: ");
 
-            int selectedNumber;
+            int answer =
+                Convert.ToInt32(Console.ReadLine());
 
-            while (true)
+            if (answer < 1 || answer > options.Count)
             {
-                Console.Write("Enter your answer: ");
-
-                if (int.TryParse(
-                        Console.ReadLine(),
-                        out selectedNumber)
-                    &&
-                    selectedNumber >= 1
-                    &&
-                    selectedNumber <= options.Count)
-                {
-                    break;
-                }
-
-                Console.WriteLine(
-                    "Invalid choice. Please try again.");
+                Console.WriteLine("Invalid answer.");
+                return;
             }
 
-            Option selectedOption =
-                options[selectedNumber - 1];
+            var selectedOption = options[answer - 1];
 
-            bool isCorrect = selectedOption.
-    IsCorrect;
+            bool correct = selectedOption.IsCorrect;
 
-decimal marksAwarded =
-    isCorrect ? question.Marks : 0;
+            decimal marks = 0;
 
-score += marksAwarded;
+            if (correct)
+            {
+                marks = question.Marks;
+                score += marks;
+            }
 
-var studentAnswer = new StudentAnswer
-{
-    AnswerId = nextAnswerId,
-    AttemptId = attemptId,
-    QuestionId = question.QuestionId,
-    OptionId = selectedOption.OptionId,
-    IsCorrect = isCorrect,
-    MarksAwarded = marksAwarded
-};
+            var studentAnswer = new StudentAnswer();
 
-attempt.StudentAnswers.Add(studentAnswer);
+            studentAnswer.AnswerId = answerId;
+            studentAnswer.AttemptId = attemptId;
+            studentAnswer.QuestionId = question.QuestionId;
+            studentAnswer.OptionId = selectedOption.OptionId;
+            studentAnswer.IsCorrect = correct;
+            studentAnswer.MarksAwarded = marks;
 
-nextAnswerId++;
-questionNumber++;
+            db.StudentAnswers.Add(studentAnswer);
+
+            answerId++;
+        }
+
+        attempt.Score = score;
+        attempt.SubmittedAt = DateTime.Now;
+
+        await db.SaveChangesAsync();
+
+        Console.WriteLine();
+        Console.WriteLine("===== Quiz Finished =====");
+        Console.WriteLine($"Student: {student.Name}");
+        Console.WriteLine($"Quiz: {quiz.Title}");
+        Console.WriteLine(
+            $"Score: {score} / {quiz.TotalMarks}");
     }
-
-    attempt.Score = score;
-attempt.SubmittedAt = DateTime.Now;
-
-db.QuizAttempts.Add(attempt);
-
-await db.SaveChangesAsync();
-
-Console.Clear();
-
-Console.WriteLine("===== Quiz Finished =====");
-Console.WriteLine();
-
-Console.WriteLine($"Student: {student.Name}");
-Console.WriteLine($"Quiz: {quiz.Title}");
-Console.WriteLine($"Score: {score} / {quiz.TotalMarks}");
-
-if (quiz.TotalMarks > 0)
-{
-    decimal percentage =
-        (score / quiz.TotalMarks) * 100;
-
-    Console.WriteLine(
-        $"Percentage: {percentage:F2}%");
-}
-
-Console.WriteLine();
-Console.WriteLine("Your answers were saved successfully.");
-}
 }
