@@ -75,7 +75,7 @@ public partial class AppDbContext : DbContext
                 .HasColumnName("Option_Text");
             entity.Property(e => e.QuestionId).HasColumnName("QuestionID");
 
-            entity.HasOne(d => d.Question).WithOne(p => p.Option)
+            entity.HasOne(d => d.Question).WithMany(p => p.Option)
                 .HasForeignKey<Option>(d => d.QuestionId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Options_Question");
