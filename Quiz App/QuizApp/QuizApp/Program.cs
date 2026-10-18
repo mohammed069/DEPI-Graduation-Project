@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using QuizApp.Data;
 
 
-// add your connection string here
 var options = new DbContextOptionsBuilder<AppDbContext>()
     .UseSqlServer(
         "Server=MOHAMMED\\SQLEXPRESS;Database=QuizAppDB;Trusted_Connection=True;TrustServerCertificate=True;")
@@ -61,8 +60,10 @@ while(isRunning) {
             break;
 
         case "4":
-            Console.WriteLine("\nTake a Quiz selected.");
+            await TakeQuiz.RunAsync(db);
             break;
+
+
 
         case "5":
             Console.WriteLine("\nView My Results selected.");
