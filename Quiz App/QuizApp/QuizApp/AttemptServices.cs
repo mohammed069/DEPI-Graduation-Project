@@ -98,6 +98,49 @@ public static class AttemptServices
 
         return await AreAllQuestionsAnsweredAsync(db, attemptId);
     }
+    // 4. Display a student's quiz results
+    public static async Task viewMyResultsAsync(
+        AppDbContext db,int studentId)
+    {
+        var student = await db.Users
+            .FirstOrDefaultAsync(u => u.UserId == studentId);
+        if (student== null)
+        {
+            Console.WriteLine("student not found");
+            return;
+        }
+        var attempts = await db.QuizAttempts
+           .Include(a => a.Quiz)
+           .Where(a => a.UserId == studentId && a.SubmittedAt != null)
+           .OrderByDescending(a => a.SubmittedAt).ToListAsync();
+        Console.ForegroundColor = ConsoleColor.Green;
+       
+        Console.WriteLine("=================================");
+        Console.WriteLine("     Quiz Results     ");
+        Console.WriteLine("==================================");
+        Console.ResetColor();
+        Console.WriteLine($"Student: {student.Name}");
+        
+
+        if (attempts.Count == 0)
+        {
+            Console.WriteLine("You have no completed quizzes yet.");
+            return;
+        }
+
+        foreach (var attempt in attempts)
+        {
+            Console.WriteLine($"Quiz: {attempt.Quiz.Title}");
+            Console.WriteLine($"Score: {attempt.Score} / {attempt.Quiz.TotalMarks}");
+
+            Console.WriteLine($"Submitted At: {attempt.SubmittedAt:dd/MM/yyyy hh:mm tt}");
+
+            Console.WriteLine("----------------------------------------");
+        }
+
+
+    }
+
 }
 
 

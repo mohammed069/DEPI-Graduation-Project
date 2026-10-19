@@ -7,7 +7,7 @@ using QuizApp.Data;
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
     .UseSqlServer(
-        "Server=Localhost\\SQL2025;Database=QuizAppDB;Trusted_Connection=True;TrustServerCertificate=True;")
+        "Server=localhost\\SQLEXPRESS;Database=QuizAppDB;Trusted_Connection=True;TrustServerCertificate=True;")
     .Options;
 
 await using var db = new AppDbContext(options);
@@ -66,8 +66,18 @@ while(isRunning) {
 
 
         case "5":
-            Console.WriteLine("\nView My Results selected.");
-            break;
+            Console.Write("Enter Student ID: ");
+
+            if (!int.TryParse(Console.ReadLine(), out int studentId))
+            {
+                Console.WriteLine("Invalid Student ID.");
+                break;
+            }
+           await AttemptServices.viewMyResultsAsync(db, studentId);
+           break;
+
+
+
 
         case "0":
             isRunning = false;
