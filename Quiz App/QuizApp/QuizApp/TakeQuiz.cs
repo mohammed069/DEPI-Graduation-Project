@@ -10,17 +10,6 @@ public static class TakeQuiz
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.Clear(); Console.WriteLine("===== Take a Quiz =====");
         Console.ResetColor();
-        //Console.Write("Enter Student ID: ");
-        //int studentId = Convert.ToInt32(Console.ReadLine());
-
-        //var student = await db.Users
-        //    .FirstOrDefaultAsync(x => x.UserId == studentId);
-
-        //if (student == null)
-        //{
-        //    Console.WriteLine("Student not found.");
-        //    return;
-        //}
 
         var student = await db.Users
     .FirstOrDefaultAsync(x => x.UserId == studentId);
@@ -42,17 +31,6 @@ public static class TakeQuiz
             Console.WriteLine("Quiz not found.");
             return;
         }
-
-        //var oldAttempt = await db.QuizAttempts
-        //    .FirstOrDefaultAsync(x =>
-        //        x.UserId == studentId &&
-        //        x.QuizId == quizId);
-
-        //if (oldAttempt != null)
-        //{
-        //    Console.WriteLine("You already took this quiz.");
-        //    return;
-        //}
 
         int attemptId = 1;
 

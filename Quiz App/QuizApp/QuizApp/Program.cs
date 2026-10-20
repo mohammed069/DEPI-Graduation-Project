@@ -20,32 +20,117 @@ var loginService = new LoginService(db);
 User? currentUser = null;
 
 while(currentUser == null) {
+    //Console.Clear();
+    //Console.ForegroundColor = ConsoleColor.Cyan;
+    //Console.WriteLine("==============================================");
+    //Console.WriteLine("     ONLINE QUIZ & EXAM MANAGEMENT SYSTEM");
+    //Console.WriteLine("                    LOGIN");
+    //Console.WriteLine("==============================================");
+    //Console.ResetColor();
+
+    //Console.Write("\nUsername: ");
+    //string username = Console.ReadLine()?.Trim() ?? "";
+
+    //Console.Write("Password: ");
+    //string password = ReadPassword();
+
+    //currentUser = await loginService.LoginAsync(username, password);
+
+    //if(currentUser == null) {
+    //    Console.ForegroundColor = ConsoleColor.Red;
+    //    Console.WriteLine("\nInvalid username or password.");
+    //    Console.ResetColor();
+
+    //    Console.WriteLine("Press any key to try again...");
+    //    Console.ReadKey();
+    //}
+
     Console.Clear();
     Console.ForegroundColor = ConsoleColor.Cyan;
     Console.WriteLine("==============================================");
     Console.WriteLine("     ONLINE QUIZ & EXAM MANAGEMENT SYSTEM");
-    Console.WriteLine("                    LOGIN");
     Console.WriteLine("==============================================");
     Console.ResetColor();
 
-    Console.Write("\nUsername: ");
-    string username = Console.ReadLine()?.Trim() ?? "";
+    Console.WriteLine("\n1. Login");
+    Console.WriteLine("2. Sign Up");
+    Console.WriteLine("0. Exit");
+    Console.Write("\nChoose an option: ");
 
-    Console.Write("Password: ");
-    string password = ReadPassword();
+    string? choice = Console.ReadLine();
 
-    currentUser = await loginService.LoginAsync(username, password);
+    switch(choice) {
+        case "1": {
+            Console.Write("\nUsername: ");
+            string username = Console.ReadLine()?.Trim() ?? "";
 
-    if(currentUser == null) {
-        Console.ForegroundColor = ConsoleColor.Red;
-        Console.WriteLine("\nInvalid username or password.");
-        Console.ResetColor();
+            Console.Write("Password: ");
+            string password = ReadPassword();
 
-        Console.WriteLine("Press any key to try again...");
-        Console.ReadKey();
+            currentUser = await loginService.LoginAsync(
+                username, password);
+
+            if(currentUser == null) {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Invalid username or password.");
+                Console.ResetColor();
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+            }
+
+            break;
+        }
+
+        case "2": {
+            Console.Write("\nFull Name: ");
+            string name = Console.ReadLine() ?? "";
+
+            Console.Write("Email: ");
+            string email = Console.ReadLine() ?? "";
+
+            Console.Write("Username: ");
+            string username = Console.ReadLine() ?? "";
+
+            Console.Write("Password: ");
+            string password = ReadPassword();
+
+            Console.Write("\nConfirm Password: ");
+            string confirmPassword = ReadPassword();
+
+            if(password != confirmPassword) {
+                Console.WriteLine("Passwords do not match.");
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
+                break;
+            }
+
+            var result = await loginService.SignUpAsync(
+                name, email, username, password);
+
+            Console.WriteLine($"\n{result.Message}");
+
+            if(result.Success) {
+                currentUser = result.NewUser;
+                Console.WriteLine($"Welcome, {currentUser!.Name}!");
+            }
+
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+            break;
+        }
+
+        case "0":
+            Console.WriteLine("Goodbye!");
+            return;
+
+        default:
+            Console.WriteLine("Invalid choice.");
+            Console.ReadKey();
+            break;
     }
 }
 
+Console.Clear();
 Console.WriteLine($"\nWelcome, {currentUser.Name}!");
 Console.WriteLine("Press any key to continue...");
 Console.ReadKey();
@@ -98,17 +183,12 @@ while(isRunning) {
             await TakeQuiz.RunAsync(db, currentUser.UserId);
             break;
 
-
-
         case "5":
             Console.Clear();
             await AttemptServices.viewMyResultsAsync(
                 db,
                 currentUser.UserId);
             break;
-
-
-
 
         case "0":
             isRunning = false;
