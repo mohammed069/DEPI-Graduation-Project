@@ -12,9 +12,14 @@ public class LoginService {
         _db = db;
     }
 
-    public async Task<User?> LoginAsync(
-        string username,
-        string password) {
+    public async Task<User?> LoginAsync() {
+
+        Console.Write("\nUsername: ");
+        string username = Console.ReadLine()?.Trim() ?? "";
+
+        Console.Write("Password: ");
+        string password = MainServices.ReadPassword().Trim();
+
         var user = await _db.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(u => u.Username == username);
@@ -31,15 +36,26 @@ public class LoginService {
 
 
     public async Task<(bool Success, string Message, User? NewUser)>
-        SignUpAsync(
-            string name,
-            string email,
-            string username,
-            string password) {
-        name = name.Trim();
-        email = email.Trim();
-        username = username.Trim();
-        password = password.Trim();
+        SignUpAsync() {
+
+        Console.Write("\nFull Name: ");
+        string name = Console.ReadLine().Trim() ?? "";
+
+        Console.Write("Email: ");
+        string email = Console.ReadLine().Trim() ?? "";
+
+        Console.Write("Username: ");
+        string username = Console.ReadLine().Trim() ?? "";
+
+        Console.Write("Password: ");
+        string password = MainServices.ReadPassword().Trim();
+
+        Console.Write("\nConfirm Password: ");
+        string confirmPassword = MainServices.ReadPassword().Trim();
+
+        if(password != confirmPassword) {
+            return (false, "Passwords do not match.", null);
+        }
 
         if(string.IsNullOrWhiteSpace(name) ||
             string.IsNullOrWhiteSpace(email) ||

@@ -12,7 +12,6 @@ var options = new DbContextOptionsBuilder<AppDbContext>()
 
 await using var db = new AppDbContext(options);
 
-
 var loginService = new LoginService(db);
 var enrollmentService = new CourseEnrollmentService(db);
 var myCoursesService = new MyCoursesService(db);
@@ -37,14 +36,7 @@ while(currentUser == null) {
 
     switch(choice) {
         case "1": {
-            Console.Write("\nUsername: ");
-            string username = Console.ReadLine()?.Trim() ?? "";
-
-            Console.Write("Password: ");
-            string password = MainServices.ReadPassword();
-
-            currentUser = await loginService.LoginAsync(
-                username, password);
+            currentUser = await loginService.LoginAsync();
 
             if(currentUser == null) {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -57,30 +49,7 @@ while(currentUser == null) {
         }
 
         case "2": {
-            Console.Write("\nFull Name: ");
-            string name = Console.ReadLine() ?? "";
-
-            Console.Write("Email: ");
-            string email = Console.ReadLine() ?? "";
-
-            Console.Write("Username: ");
-            string username = Console.ReadLine() ?? "";
-
-            Console.Write("Password: ");
-            string password = MainServices.ReadPassword();
-
-            Console.Write("\nConfirm Password: ");
-            string confirmPassword = MainServices.ReadPassword();
-
-            if(password != confirmPassword) {
-                Console.WriteLine("Passwords do not match.");
-                Console.WriteLine("Press any key to continue...");
-                Console.ReadKey();
-                break;
-            }
-
-            var result = await loginService.SignUpAsync(
-                name, email, username, password);
+            var result = await loginService.SignUpAsync();
 
             Console.WriteLine($"\n{result.Message}");
 
