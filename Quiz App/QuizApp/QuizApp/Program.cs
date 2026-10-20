@@ -3,8 +3,6 @@ using QuizApp;
 using QuizApp.Data;
 using QuizApp.Models;
 using QuizApp.Services;
-using System;
-using System.Text;
 
 
 var options = new DbContextOptionsBuilder<AppDbContext>()
@@ -16,34 +14,12 @@ await using var db = new AppDbContext(options);
 
 
 var loginService = new LoginService(db);
+var enrollmentService = new CourseEnrollmentService(db);
+var myCoursesService = new MyCoursesService(db);
 
 User? currentUser = null;
 
 while(currentUser == null) {
-    //Console.Clear();
-    //Console.ForegroundColor = ConsoleColor.Cyan;
-    //Console.WriteLine("==============================================");
-    //Console.WriteLine("     ONLINE QUIZ & EXAM MANAGEMENT SYSTEM");
-    //Console.WriteLine("                    LOGIN");
-    //Console.WriteLine("==============================================");
-    //Console.ResetColor();
-
-    //Console.Write("\nUsername: ");
-    //string username = Console.ReadLine()?.Trim() ?? "";
-
-    //Console.Write("Password: ");
-    //string password = ReadPassword();
-
-    //currentUser = await loginService.LoginAsync(username, password);
-
-    //if(currentUser == null) {
-    //    Console.ForegroundColor = ConsoleColor.Red;
-    //    Console.WriteLine("\nInvalid username or password.");
-    //    Console.ResetColor();
-
-    //    Console.WriteLine("Press any key to try again...");
-    //    Console.ReadKey();
-    //}
 
     Console.Clear();
     Console.ForegroundColor = ConsoleColor.Cyan;
@@ -65,7 +41,7 @@ while(currentUser == null) {
             string username = Console.ReadLine()?.Trim() ?? "";
 
             Console.Write("Password: ");
-            string password = ReadPassword();
+            string password = MainServices.ReadPassword();
 
             currentUser = await loginService.LoginAsync(
                 username, password);
@@ -77,7 +53,6 @@ while(currentUser == null) {
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
             }
-
             break;
         }
 
@@ -92,10 +67,10 @@ while(currentUser == null) {
             string username = Console.ReadLine() ?? "";
 
             Console.Write("Password: ");
-            string password = ReadPassword();
+            string password = MainServices.ReadPassword();
 
             Console.Write("\nConfirm Password: ");
-            string confirmPassword = ReadPassword();
+            string confirmPassword = MainServices.ReadPassword();
 
             if(password != confirmPassword) {
                 Console.WriteLine("Passwords do not match.");
@@ -167,16 +142,15 @@ while(isRunning) {
 
     switch(choice) {
         case "1":
-            Console.Clear();
             await CoursesAndQuizzes.ShowAsync(db);
             break;
 
         case "2":
-            Console.WriteLine("\nEnroll in a Course selected.");
+            await enrollmentService.EnrollAsync(currentUser.UserId);
             break;
 
         case "3":
-            Console.WriteLine("\nView My Enrolled Courses selected.");
+            await myCoursesService.ShowAsync(currentUser.UserId);
             break;
 
         case "4":
@@ -184,7 +158,6 @@ while(isRunning) {
             break;
 
         case "5":
-            Console.Clear();
             await AttemptServices.viewMyResultsAsync(
                 db,
                 currentUser.UserId);
@@ -207,30 +180,3 @@ while(isRunning) {
         Console.ReadKey();
     }
 }
-
-
-
-
-static string ReadPassword() {
-    string password = "";
-
-    while(true) {
-        var key = Console.ReadKey(intercept: true);
-
-        if(key.Key == ConsoleKey.Enter) {
-            Console.WriteLine();
-            return password;
-        }
-
-        if(key.Key == ConsoleKey.Backspace) {
-            if(password.Length > 0)
-                password = password[..^1];
-
-            continue;
-        }
-
-        if(!char.IsControl(key.KeyChar))
-            password += key.KeyChar;
-    }
-}
-

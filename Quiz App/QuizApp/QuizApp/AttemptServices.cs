@@ -102,6 +102,7 @@ public static class AttemptServices
     public static async Task viewMyResultsAsync(
         AppDbContext db,int studentId)
     {
+        Console.Clear();
         var student = await db.Users
             .FirstOrDefaultAsync(u => u.UserId == studentId);
         if (student== null)

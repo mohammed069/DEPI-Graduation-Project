@@ -5,6 +5,7 @@ namespace QuizApp;
 
 public static class CoursesAndQuizzes {
     public static async Task ShowAsync(AppDbContext db) {
+        Console.Clear();
         var courses = await db.Courses
             .AsNoTracking()
             .Include(c => c.Quizzes)
