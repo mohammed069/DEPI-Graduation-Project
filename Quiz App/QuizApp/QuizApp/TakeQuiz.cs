@@ -5,20 +5,28 @@ namespace QuizApp;
 
 public static class TakeQuiz
 {
-    public static async Task RunAsync(AppDbContext db)
+    public static async Task RunAsync(AppDbContext db, int studentId)
     {
         Console.ForegroundColor = ConsoleColor.Blue;
         Console.Clear(); Console.WriteLine("===== Take a Quiz =====");
         Console.ResetColor();
-        Console.Write("Enter Student ID: ");
-        int studentId = Convert.ToInt32(Console.ReadLine());
+        //Console.Write("Enter Student ID: ");
+        //int studentId = Convert.ToInt32(Console.ReadLine());
+
+        //var student = await db.Users
+        //    .FirstOrDefaultAsync(x => x.UserId == studentId);
+
+        //if (student == null)
+        //{
+        //    Console.WriteLine("Student not found.");
+        //    return;
+        //}
 
         var student = await db.Users
-            .FirstOrDefaultAsync(x => x.UserId == studentId);
+    .FirstOrDefaultAsync(x => x.UserId == studentId);
 
-        if (student == null)
-        {
-            Console.WriteLine("Student not found.");
+        if(student == null) {
+            Console.WriteLine("Logged-in student not found.");
             return;
         }
 
@@ -35,16 +43,16 @@ public static class TakeQuiz
             return;
         }
 
-        var oldAttempt = await db.QuizAttempts
-            .FirstOrDefaultAsync(x =>
-                x.UserId == studentId &&
-                x.QuizId == quizId);
+        //var oldAttempt = await db.QuizAttempts
+        //    .FirstOrDefaultAsync(x =>
+        //        x.UserId == studentId &&
+        //        x.QuizId == quizId);
 
-        if (oldAttempt != null)
-        {
-            Console.WriteLine("You already took this quiz.");
-            return;
-        }
+        //if (oldAttempt != null)
+        //{
+        //    Console.WriteLine("You already took this quiz.");
+        //    return;
+        //}
 
         int attemptId = 1;
 

@@ -13,11 +13,19 @@ public partial class User
 
     public string Role { get; set; } = null!;
 
-    public virtual ICollection<QuizAttempt> QuizAttempts { get; set; } = new List<QuizAttempt>();
+    public string? Username { get; set; }
 
-    public virtual ICollection<Quiz> Quizzes { get; set; } = new List<Quiz>();
+    public string? PasswordHash { get; set; }
 
-    public virtual ICollection<UserCourseEnrollment> UserCourseEnrollments { get; set; } = new List<UserCourseEnrollment>();
+    public virtual ICollection<Quiz> Quizzes { get; set; }
+    = new List<Quiz>();
 
-    public virtual ICollection<UserCourseTeach> UserCourseTeaches { get; set; } = new List<UserCourseTeach>();
+    public virtual ICollection<QuizAttempt> QuizAttempts { get; set; }
+        = new List<QuizAttempt>();
+
+    public virtual ICollection<UserCourseEnrollment> UserCourseEnrollments { get; set; }
+        = new List<UserCourseEnrollment>();
+
+    public virtual ICollection<UserCourseTeach> UserCourseTeaches { get; set; }
+        = new List<UserCourseTeach>();
 }

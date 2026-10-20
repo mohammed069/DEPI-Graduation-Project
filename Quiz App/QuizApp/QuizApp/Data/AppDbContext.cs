@@ -5,11 +5,9 @@ using QuizApp.Models;
 
 namespace QuizApp.Data;
 
-public partial class AppDbContext : DbContext
-{
+public partial class AppDbContext : DbContext {
     public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options)
-    {
+        : base(options) {
     }
 
     public virtual DbSet<Course> Courses { get; set; }
@@ -30,10 +28,8 @@ public partial class AppDbContext : DbContext
 
     public virtual DbSet<UserCourseTeach> UserCourseTeaches { get; set; }
 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Course>(entity =>
-        {
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        modelBuilder.Entity<Course>(entity => {
             entity.HasKey(e => e.CourseId).HasName("PK__COURSE__C92D7187076C4B8C");
 
             entity.ToTable("COURSE");
@@ -52,8 +48,7 @@ public partial class AppDbContext : DbContext
                 .IsUnicode(false);
         });
 
-        modelBuilder.Entity<Option>(entity =>
-        {
+        modelBuilder.Entity<Option>(entity => {
             entity.HasKey(e => e.OptionId).HasName("PK__OPTIONS__92C7A1DF18E748E1");
 
             entity.ToTable("OPTIONS");
@@ -81,8 +76,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_Options_Question");
         });
 
-        modelBuilder.Entity<Question>(entity =>
-        {
+        modelBuilder.Entity<Question>(entity => {
             entity.HasKey(e => e.QuestionId).HasName("PK__QUESTION__0DC06F8C3F604EE6");
 
             entity.ToTable("QUESTION");
@@ -107,8 +101,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_Question_Course");
         });
 
-        modelBuilder.Entity<Quiz>(entity =>
-        {
+        modelBuilder.Entity<Quiz>(entity => {
             entity.HasKey(e => e.QuizId).HasName("PK__QUIZ__8B42AE6E8A0B02D2");
 
             entity.ToTable("QUIZ");
@@ -150,8 +143,7 @@ public partial class AppDbContext : DbContext
                         .HasForeignKey("QuizId")
                         .OnDelete(DeleteBehavior.ClientSetNull)
                         .HasConstraintName("FK_QQ_Quiz"),
-                    j =>
-                    {
+                    j => {
                         j.HasKey("QuizId", "QuestionId").HasName("PK_Quiz_Questions");
                         j.ToTable("QUIZ_QUESTIONS");
                         j.HasIndex(new[] { "QuestionId" }, "IX_QuizQuestions_QuestionID");
@@ -160,8 +152,7 @@ public partial class AppDbContext : DbContext
                     });
         });
 
-        modelBuilder.Entity<QuizAttempt>(entity =>
-        {
+        modelBuilder.Entity<QuizAttempt>(entity => {
             entity.HasKey(e => e.AttemptId).HasName("PK__QUIZ_ATT__891A6886181C499B");
 
             entity.ToTable("QUIZ_ATTEMPT");
@@ -189,8 +180,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_Attempt_User");
         });
 
-        modelBuilder.Entity<StudentAnswer>(entity =>
-        {
+        modelBuilder.Entity<StudentAnswer>(entity => {
             entity.HasKey(e => e.AnswerId).HasName("PK__STUDENT___D482502499383404");
 
             entity.ToTable("STUDENT_ANSWER");
@@ -227,8 +217,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_Answer_Option_Question");
         });
 
-        modelBuilder.Entity<User>(entity =>
-        {
+        modelBuilder.Entity<User>(entity => {
             entity.HasKey(e => e.UserId).HasName("PK__USER__1788CCAC18C78DB1");
 
             entity.ToTable("USER");
@@ -247,10 +236,18 @@ public partial class AppDbContext : DbContext
             entity.Property(e => e.Role)
                 .HasMaxLength(20)
                 .IsUnicode(false);
+            entity.Property(e => e.PasswordHash)
+    .HasMaxLength(255);
+
+            entity.Property(e => e.Username)
+                .HasMaxLength(50);
+
+            entity.HasIndex(e => e.Username, "UX_USER_Username")
+                .IsUnique()
+                .HasFilter("([Username] IS NOT NULL)");
         });
 
-        modelBuilder.Entity<UserCourseEnrollment>(entity =>
-        {
+        modelBuilder.Entity<UserCourseEnrollment>(entity => {
             entity.HasKey(e => e.EnrollmentId).HasName("PK__USER_COU__7F6877FB7B4DBC54");
 
             entity.ToTable("USER_COURSE_ENROLLMENT");
@@ -276,8 +273,7 @@ public partial class AppDbContext : DbContext
                 .HasConstraintName("FK_Enrollment_User");
         });
 
-        modelBuilder.Entity<UserCourseTeach>(entity =>
-        {
+        modelBuilder.Entity<UserCourseTeach>(entity => {
             entity.HasKey(e => e.TeachingId).HasName("PK__USER_COU__69B6BA5EF06EB06C");
 
             entity.ToTable("USER_COURSE_TEACHES");
