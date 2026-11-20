@@ -28,4 +28,4 @@ The application provides a platform where users can:
 
 ## Team Project
 
-This project is developed as part of a university graduation project.
+Developed as a graduation project under the **Digital Egypt Pioneers Initiative (DEPI)**, supported by the Ministry of Communications and Information Technology (MCIT), Egypt.
