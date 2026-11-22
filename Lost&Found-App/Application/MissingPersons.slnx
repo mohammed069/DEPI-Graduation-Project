@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="MissingPersons.BLL/MissingPersons.BLL.csproj" />
+  <Project Path="MissingPersons.DAL/MissingPersons.DAL.csproj" />
+  <Project Path="MissingPersons.MVC/MissingPersons.MVC.csproj" />
+</Solution>
