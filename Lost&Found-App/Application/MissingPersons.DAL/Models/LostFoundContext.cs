@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace MissingPersons.DAL.Models;
 
-public partial class LostFoundContext : DbContext
+public partial class LostFoundContext : IdentityDbContext<User,IdentityRole<int>,int>
 {
     public LostFoundContext()
     {
@@ -35,8 +37,6 @@ public partial class LostFoundContext : DbContext
 
     public virtual DbSet<ReportImage> ReportImages { get; set; }
 
-    public virtual DbSet<User> Users { get; set; }
-
     public virtual DbSet<UserLocationPreference> UserLocationPreferences { get; set; }
 
     public virtual DbSet<UserVerification> UserVerifications { get; set; }
@@ -45,6 +45,7 @@ public partial class LostFoundContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.Entity<Conversation>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("PK__Conversa__3214EC070B6A509D");
